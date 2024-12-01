@@ -1,0 +1,19 @@
+[package]
+name = "aoc_2024"
+version = "0.1.0"
+authors = ["Alexander Stekelenburg <anoniem.axander@gmail.com>"]
+edition = "2021"
+
+[profile.release]
+debug = true
+
+[dependencies]
+regex = "1.11.1"
+mimalloc = "0.1.43"
+anyhow = "1.0.93"
+tracing = { version = "0.1.40", features = ["max_level_debug", "release_max_level_info"] }
+tracing-subscriber = "0.3.18"
+bit-vec = "0.8.0"
+itertools = "0.13.0"
+rayon = "1.10.0"
+
