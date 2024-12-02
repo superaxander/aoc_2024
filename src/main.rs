@@ -2,6 +2,8 @@
 #![feature(int_roundings)]
 #![feature(let_chains)]
 #![feature(lazy_cell)]
+#![feature(iter_map_windows)]
+#![feature(is_sorted)]
 
 use std::time::Instant;
 
@@ -14,7 +16,7 @@ static GLOBAL: MiMalloc = MiMalloc;
 
 mod common;
 mod day1;
-// mod day2;
+mod day2;
 // mod day3;
 // mod day4;
 // mod day5;
@@ -49,7 +51,7 @@ fn main() {
     span.in_scope(|| {
         let start = Instant::now();
         Day::Combined(day1::main).run("day 1");
-        // Day::Combined(day2::main).run("day 2");
+        Day::Combined(day2::main).run("day 2");
         // Day::Combined(day3::main).run("day 3");
         // Day::Combined(day4::main).run("day 4");
         // Day::Combined(day5::main).run("day 5");
