@@ -19,12 +19,12 @@ pub fn main() -> Result<(usize, usize)> {
             transposed.extend(line.chars().map(|c| vec![c]));
         } else {
             for (c, dest) in line.chars().zip(transposed.iter_mut()) {
-                dest.push(c)
+                dest.push(c);
             }
         }
     }
 
-    for line in transposed.iter() {
+    for line in &transposed {
         let line: String = line.iter().collect();
         solution_a += count_matches("XMAS", &line);
         solution_a += count_matches("SAMX", &line);

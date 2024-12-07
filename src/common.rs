@@ -136,14 +136,12 @@ impl<
                     self.min = Some(
                         self.min
                             .take()
-                            .map(|m| m.min(&coord))
-                            .unwrap_or_else(|| coord.clone()),
+                            .map_or_else(|| coord.clone(), |m| m.min(&coord)),
                     );
                     self.max = Some(
                         self.max
                             .take()
-                            .map(|m| m.max(&coord))
-                            .unwrap_or_else(|| coord.clone()),
+                            .map_or_else(|| coord.clone(), |m| m.max(&coord)),
                     );
                 }
                 self.map.remove(&coord)
@@ -153,14 +151,12 @@ impl<
                     self.min = Some(
                         self.min
                             .take()
-                            .map(|m| m.min(&coord))
-                            .unwrap_or_else(|| coord.clone()),
+                            .map_or_else(|| coord.clone(), |m| m.min(&coord)),
                     );
                     self.max = Some(
                         self.max
                             .take()
-                            .map(|m| m.max(&coord))
-                            .unwrap_or_else(|| coord.clone()),
+                            .map_or_else(|| coord.clone(), |m| m.max(&coord)),
                     );
                 }
                 self.map.insert(coord, data)
@@ -200,9 +196,9 @@ impl<
         let (min, max) = self.extents();
         for (nl, coord) in min.range_to_debug(&max) {
             if nl {
-                writeln!(f, "{}", Data::to_char(self.get(&coord)))?
+                writeln!(f, "{}", Data::to_char(self.get(&coord)))?;
             } else {
-                write!(f, "{}", Data::to_char(self.get(&coord)))?
+                write!(f, "{}", Data::to_char(self.get(&coord)))?;
             }
         }
         Ok(())
@@ -370,7 +366,7 @@ pub enum Facing {
 }
 
 impl Facing {
-    pub fn left(&self) -> Self {
+    pub fn left(self) -> Self {
         match self {
             Facing::North => Facing::West,
             Facing::East => Facing::North,
@@ -379,7 +375,7 @@ impl Facing {
         }
     }
 
-    pub fn right(&self) -> Self {
+    pub fn right(self) -> Self {
         match self {
             Facing::North => Facing::East,
             Facing::East => Facing::South,
@@ -388,7 +384,7 @@ impl Facing {
         }
     }
 
-    pub fn flip(&self) -> Self {
+    pub fn flip(self) -> Self {
         match self {
             Facing::North => Facing::South,
             Facing::East => Facing::West,

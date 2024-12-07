@@ -20,7 +20,7 @@ pub fn main() -> Result<(usize, usize)> {
                 "do()" => doit = true,
                 "don't()" => doit = false,
                 _ if doit => {
-                    solution_b += captures[1].parse::<usize>()? * captures[2].parse::<usize>()?
+                    solution_b += captures[1].parse::<usize>()? * captures[2].parse::<usize>()?;
                 }
                 _ => solution_a += captures[1].parse::<usize>()? * captures[2].parse::<usize>()?,
             }

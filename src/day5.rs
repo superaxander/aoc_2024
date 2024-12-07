@@ -20,7 +20,7 @@ pub fn main() -> Result<(usize, usize)> {
         } else if do_updates {
             let mut update = line
                 .split(',')
-                .map(|s| s.parse::<usize>())
+                .map(str::parse)
                 .collect::<std::result::Result<Vec<_>, _>>()?;
             if sort(&orderings, &mut update) {
                 solution_b += update[(update.len()) / 2];
@@ -28,7 +28,7 @@ pub fn main() -> Result<(usize, usize)> {
                 solution_a += update[(update.len()) / 2];
             }
         } else {
-            let (before, after) = line.split_once("|").unwrap();
+            let (before, after) = line.split_once('|').unwrap();
             orderings.push((before.parse::<usize>()?, after.parse::<usize>()?));
         }
     }

@@ -14,8 +14,8 @@ pub fn main() -> Result<(i64, i64)> {
         let (test_value, operands) = line.split_once(": ").unwrap();
         let test_value = test_value.parse::<i64>()?;
         let operands = operands
-            .split(" ")
-            .map(|operand| operand.parse::<i64>())
+            .split(' ')
+            .map(str::parse)
             .collect::<std::result::Result<Vec<_>, _>>()?;
         if test_operands(test_value, &operands, false) {
             solution_a += test_value;

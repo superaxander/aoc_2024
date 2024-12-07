@@ -13,7 +13,7 @@ pub fn main() -> Result<(usize, usize)> {
         let line = line.trim();
         let levels = line
             .split(' ')
-            .map(|s| s.parse::<usize>())
+            .map(str::parse)
             .collect::<std::result::Result<Vec<_>, _>>()?;
         match (
             levels.is_sorted() || levels.is_sorted_by_key(Reverse),
