@@ -8,14 +8,10 @@ use std::io;
 use std::io::{BufRead, BufReader};
 use std::ops::{Add, Div, Mul, Sub};
 use std::path::Path;
-use std::sync::LazyLock;
 use std::time::Instant;
 
 use anyhow::Result;
-use regex::Regex;
 use tracing::{error, info};
-
-pub static RE_WS: LazyLock<Regex> = LazyLock::new(|| Regex::new("\\s+").unwrap());
 
 pub fn read_lines<P>(filename: P) -> Result<io::Lines<BufReader<File>>>
 where

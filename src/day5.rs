@@ -36,7 +36,7 @@ pub fn main() -> Result<(usize, usize)> {
     Ok((solution_a, solution_b))
 }
 
-fn sort(orderings: &[(usize, usize)], update: &mut Vec<usize>) -> bool {
+fn sort(orderings: &[(usize, usize)], update: &mut [usize]) -> bool {
     let mut changed = false;
     loop {
         let mut swapped = false;

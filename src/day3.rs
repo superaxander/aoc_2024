@@ -27,7 +27,7 @@ pub fn main() -> Result<(usize, usize)> {
         }
     }
 
-    solution_a = solution_a + solution_b;
+    solution_a += solution_b;
 
     Ok((solution_a, solution_b))
 }
