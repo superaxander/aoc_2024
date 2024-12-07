@@ -1,7 +1,7 @@
 use crate::common;
 use anyhow::Result;
 
-pub fn main() -> Result<(usize, usize)> {
+pub fn main() -> Result<(i64, i64)> {
     let lines = common::read_lines("inputs/7.txt")?;
 
     let mut solution_a = 0;
@@ -12,14 +12,14 @@ pub fn main() -> Result<(usize, usize)> {
         let line = line.trim();
 
         let (test_value, operands) = line.split_once(": ").unwrap();
-        let test_value = test_value.parse::<usize>()?;
+        let test_value = test_value.parse::<i64>()?;
         let operands = operands
             .split(" ")
-            .map(|operand| operand.parse::<usize>())
+            .map(|operand| operand.parse::<i64>())
             .collect::<std::result::Result<Vec<_>, _>>()?;
-        if test_operands(test_value, operands[0], &operands[1..], false) {
+        if test_operands(test_value, &operands, false) {
             solution_a += test_value;
-        } else if test_operands(test_value, operands[0], &operands[1..], true) {
+        } else if test_operands(test_value, &operands, true) {
             solution_b += test_value;
         }
     }
@@ -29,29 +29,18 @@ pub fn main() -> Result<(usize, usize)> {
     Ok((solution_a, solution_b))
 }
 
-fn test_operands(test_value: usize, current_value: usize, operands: &[usize], do_b: bool) -> bool {
-    if current_value > test_value {
-        return false;
-    }
-    if operands.is_empty() {
-        return current_value == test_value;
+fn test_operands(test_value: i64, operands: &[i64], do_b: bool) -> bool {
+    let operand = operands[operands.len() - 1];
+    if operands.len() == 1 {
+        return test_value == operand;
     }
 
-    test_operands(
-        test_value,
-        current_value + operands[0],
-        &operands[1..],
-        do_b,
-    ) || test_operands(
-        test_value,
-        current_value * operands[0],
-        &operands[1..],
-        do_b,
-    ) || (do_b
-        && test_operands(
-            test_value,
-            current_value * 10usize.pow(operands[0].ilog10() + 1) + operands[0],
-            &operands[1..],
-            do_b,
-        ))
+    (test_value % operand == 0
+        && test_operands(test_value / operand, &operands[..operands.len() - 1], do_b))
+        || test_operands(test_value - operand, &operands[..operands.len() - 1], do_b)
+        || (do_b && {
+            let factor = 10i64.pow(operand.ilog10() + 1);
+            test_value % factor == operand
+                && test_operands(test_value / factor, &operands[..operands.len() - 1], do_b)
+        })
 }
