@@ -88,6 +88,22 @@ pub trait CharConvertable: Sized {
     fn from_char(c: char) -> Option<Self>;
 }
 
+impl CharConvertable for char {
+    fn to_char(option: Option<&Self>) -> char {
+        match option {
+            None => '.',
+            Some(c) => *c,
+        }
+    }
+
+    fn from_char(c: char) -> Option<Self> {
+        match c {
+            '.' => None,
+            c => Some(c),
+        }
+    }
+}
+
 #[derive(Clone, PartialEq)]
 pub struct InfiniteGrid<
     Coord: Coordinate,
