@@ -10,7 +10,8 @@
     clippy::cast_possible_truncation,
     clippy::cast_possible_wrap,
     clippy::cast_precision_loss,
-    clippy::cast_sign_loss
+    clippy::cast_sign_loss,
+    clippy::match_on_vec_items
 )]
 
 use std::time::Instant;
@@ -58,15 +59,15 @@ fn main() {
     let span = info_span!("All days");
     span.in_scope(|| {
         let start = Instant::now();
-        // Day::Combined(day1::main).run("day 1");
-        // Day::Combined(day2::main).run("day 2");
-        // Day::Combined(day3::main).run("day 3");
-        // Day::Combined(day4::main).run("day 4");
-        // Day::Combined(day5::main).run("day 5");
-        // Day::Combined(day6::main).run("day 6");
-        // Day::Combined(day7::main).run("day 7");
-        // Day::Combined(day8::main).run("day 8");
-        // Day::Combined(day9::main).run("day 9");
+        Day::Combined(day1::main).run("day 1");
+        Day::Combined(day2::main).run("day 2");
+        Day::Combined(day3::main).run("day 3");
+        Day::Combined(day4::main).run("day 4");
+        Day::Combined(day5::main).run("day 5");
+        Day::Combined(day6::main).run("day 6");
+        Day::Combined(day7::main).run("day 7");
+        Day::Combined(day8::main).run("day 8");
+        Day::Combined(day9::main).run("day 9");
         Day::Combined(day10::main).run("day 10");
         // Day::Combined(day11::main).run("day 11");
         // Day::Combined(day12::main).run("day 12");

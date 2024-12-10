@@ -1,6 +1,7 @@
 use crate::common;
 use anyhow::Result;
 use itertools::Itertools;
+use std::cmp::Ordering;
 
 #[derive(Debug, Copy, Clone, Eq, PartialEq)]
 enum Space {
@@ -38,27 +39,28 @@ pub fn main() -> Result<(usize, usize)> {
                     }
                     if let Some((pos, Space::Free(space))) = disk_a[definitely_filled..i]
                         .iter()
-                        .find_position(|space| match space {
-                            Space::Free(_) => true,
-                            _ => false,
-                        })
+                        .find_position(|space| matches!(space, Space::Free(_)))
                     {
                         let pos = definitely_filled + pos;
                         let space = *space;
-                        if remaining == space {
-                            disk_a.swap(pos, i);
-                            remaining = 0;
-                        } else if remaining < space {
-                            disk_a[pos] = disk_a[i];
-                            disk_a[i] = Space::Free(remaining);
-                            disk_a.insert(pos + 1, Space::Free(space - remaining));
-                            definitely_filled = pos + 1;
-                            continue 'outer;
-                        } else if space < remaining {
-                            disk_a[pos] = Space::Filled(id, space);
-                            remaining -= space;
-                            disk_a[i] = Space::Filled(id, remaining);
-                            definitely_filled = pos + 1;
+                        match remaining.cmp(&space) {
+                            Ordering::Less => {
+                                disk_a[pos] = disk_a[i];
+                                disk_a[i] = Space::Free(remaining);
+                                disk_a.insert(pos + 1, Space::Free(space - remaining));
+                                definitely_filled = pos + 1;
+                                continue 'outer;
+                            }
+                            Ordering::Equal => {
+                                disk_a.swap(pos, i);
+                                remaining = 0;
+                            }
+                            Ordering::Greater => {
+                                disk_a[pos] = Space::Filled(id, space);
+                                remaining -= space;
+                                disk_a[i] = Space::Filled(id, remaining);
+                                definitely_filled = pos + 1;
+                            }
                         }
                     } else {
                         break 'outer;
@@ -69,31 +71,19 @@ pub fn main() -> Result<(usize, usize)> {
         }
         i -= 1;
     }
-    let solution_a = disk_a
-        .into_iter()
-        .fold((0, 0), |(sum, count), it| match it {
-            Space::Filled(id, cnt) => (
-                sum + (count..count + cnt).map(|i| i * id).sum::<usize>(),
-                count + cnt,
-            ),
-            Space::Free(cnt) => (sum, count + cnt),
-        })
-        .0;
+    let solution_a = checksum(&disk_a);
 
     let mut i = disk_b.len() - 1;
     while i > 0 {
         match disk_b[i] {
             Space::Filled(_, count) => {
-                if let Some((pos, Space::Free(space))) =
-                    disk_b[..i].iter().find_position(|space| match space {
-                        Space::Free(cnt) if *cnt >= count => true,
-                        _ => false,
-                    })
+                if let Some((pos, Space::Free(space))) = disk_b[..i]
+                    .iter()
+                    .find_position(|space| matches!(space, Space::Free(cnt) if *cnt >= count))
                 {
                     let space = *space;
                     disk_b.swap(pos, i);
-                    if count == space {
-                    } else {
+                    if count != space {
                         disk_b[i] = Space::Free(count);
                         disk_b.insert(pos + 1, Space::Free(space - count));
                         continue;
@@ -105,8 +95,13 @@ pub fn main() -> Result<(usize, usize)> {
         i -= 1;
     }
 
-    let solution_b = disk_b
-        .into_iter()
+    let solution_b = checksum(&disk_b);
+
+    Ok((solution_a, solution_b))
+}
+
+fn checksum(disk: &[Space]) -> usize {
+    disk.iter()
         .fold((0, 0), |(sum, count), it| match it {
             Space::Filled(id, cnt) => (
                 sum + (count..count + cnt).map(|i| i * id).sum::<usize>(),
@@ -114,7 +109,5 @@ pub fn main() -> Result<(usize, usize)> {
             ),
             Space::Free(cnt) => (sum, count + cnt),
         })
-        .0;
-
-    Ok((solution_a, solution_b))
+        .0
 }

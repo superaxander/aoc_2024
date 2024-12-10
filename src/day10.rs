@@ -1,6 +1,5 @@
 use crate::common;
 use anyhow::Result;
-use rayon::yield_now;
 use std::collections::HashSet;
 
 pub fn main() -> Result<(usize, usize)> {
@@ -16,7 +15,7 @@ pub fn main() -> Result<(usize, usize)> {
         let line = line?;
         let line = line.trim();
 
-        let mut row = Vec::new();
+        let mut row = Vec::with_capacity(line.len());
         for (x, c) in line.chars().enumerate() {
             if c == '0' {
                 trailheads.push((x, y));
@@ -27,7 +26,7 @@ pub fn main() -> Result<(usize, usize)> {
         grid.push(row);
     }
 
-    let mut size = grid.len();
+    let size = grid.len();
 
     for (x, y) in trailheads {
         let mut position = vec![(x, y, 0)];
