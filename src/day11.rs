@@ -5,7 +5,6 @@ use std::collections::HashMap;
 pub fn main() -> Result<(usize, usize)> {
     let lines = common::read_lines("inputs/11.txt")?;
 
-
     let mut stones = Vec::new();
 
     for line in lines {

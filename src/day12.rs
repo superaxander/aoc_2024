@@ -86,8 +86,7 @@ pub fn main() -> Result<(usize, usize)> {
 
     for (area, mut edges) in regions {
         let mut sides_a = 0;
-        while !edges.is_empty() {
-            let (mut x, mut y, mut facing) = edges.iter().copied().next().unwrap();
+        while let Some((mut x, mut y, mut facing)) = edges.iter().copied().next() {
             let mut first = true;
             loop {
                 if first {
