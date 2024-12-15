@@ -17,7 +17,6 @@ pub fn main() -> Result<(usize, usize)> {
 
     let lines = common::read_lines("inputs/14.txt")?;
 
-
     let mut robots = Vec::new();
 
     for line in lines {
@@ -91,6 +90,7 @@ pub fn main() -> Result<(usize, usize)> {
                     }
                     string.push('\n');
                 }
+                debug!("{string}");
             }
             break;
         }
