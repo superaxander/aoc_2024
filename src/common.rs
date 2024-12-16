@@ -373,7 +373,7 @@ impl Div<i64> for SignedCoordinate {
     }
 }
 
-#[derive(Copy, Clone, Eq, PartialEq, Hash, Debug)]
+#[derive(Copy, Clone, Eq, PartialEq, Hash, Debug, Ord, PartialOrd)]
 pub enum Facing {
     North,
     East,
