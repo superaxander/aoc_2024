@@ -1,15 +1,14 @@
 use crate::common;
 use crate::common::Facing;
 use anyhow::Result;
-use std::cmp::Reverse;
+use std::cmp::{Ordering, Reverse};
 use std::collections::hash_map::Entry;
 use std::collections::{BinaryHeap, HashMap, HashSet};
 
+type State = (usize, usize, Facing);
+
 pub fn main() -> Result<(usize, usize)> {
     let lines = common::read_lines("inputs/16.txt")?;
-
-    let mut solution_a = 0;
-    let mut solution_b = 0;
 
     let mut grid = Vec::new();
 
@@ -22,12 +21,7 @@ pub fn main() -> Result<(usize, usize)> {
         let line = line?;
         let line = line.trim();
 
-        for (j, c) in line
-            .chars()
-            .enumerate()
-            .filter(|(_, c)| *c == 'E' || *c == 'S')
-            .collect::<Vec<_>>()
-        {
+        for (j, c) in line.chars().enumerate() {
             match c {
                 'S' => {
                     start_x = j;
@@ -37,154 +31,116 @@ pub fn main() -> Result<(usize, usize)> {
                     end_x = j;
                     end_y = i;
                 }
-                _ => unreachable!(),
+                _ => {}
             }
         }
         grid.push(line.chars().map(|c| c == '#').collect::<Vec<_>>());
     }
 
+    let mut solution_a = 0;
     let mut frontier = BinaryHeap::new();
     let mut g_score = HashMap::new();
+    let mut remaining = Vec::new();
 
-    frontier.push(Reverse((0, start_x, start_y, Facing::East)));
+    frontier.push(Reverse((0, (start_x, start_y, Facing::East))));
 
-    let mut good_spots = HashSet::new();
-    good_spots.insert((end_x, end_y));
-
-    while let Some(Reverse((score, x, y, facing))) = frontier.pop() {
+    while let Some(Reverse((score, current @ (x, y, facing)))) = frontier.pop() {
         if x == end_x && y == end_y {
             if solution_a == 0 {
                 solution_a = score;
-            }
-            if score > solution_a {
+            } else if score > solution_a {
                 break;
             }
+            if !remaining.contains(&current) {
+                remaining.push(current);
+            }
         }
 
         match facing {
-            Facing::North => {
-                if !grid[y - 1][x] {
-                    add_frontier(&mut frontier, &mut g_score, score + 1, x, y - 1, facing);
-                }
-            }
-            Facing::East => {
-                if !grid[y][x + 1] {
-                    add_frontier(&mut frontier, &mut g_score, score + 1, x + 1, y, facing);
-                }
-            }
-            Facing::South => {
-                if !grid[y + 1][x] {
-                    add_frontier(&mut frontier, &mut g_score, score + 1, x, y + 1, facing);
-                }
-            }
-            Facing::West => {
-                if !grid[y][x - 1] {
-                    add_frontier(&mut frontier, &mut g_score, score + 1, x - 1, y, facing);
-                }
-            }
+            Facing::North if !grid[y - 1][x] => add_frontier(
+                &mut frontier,
+                &mut g_score,
+                score + 1,
+                (x, y - 1, facing),
+                current,
+            ),
+            Facing::East if !grid[y][x + 1] => add_frontier(
+                &mut frontier,
+                &mut g_score,
+                score + 1,
+                (x + 1, y, facing),
+                current,
+            ),
+            Facing::South if !grid[y + 1][x] => add_frontier(
+                &mut frontier,
+                &mut g_score,
+                score + 1,
+                (x, y + 1, facing),
+                current,
+            ),
+            Facing::West if !grid[y][x - 1] => add_frontier(
+                &mut frontier,
+                &mut g_score,
+                score + 1,
+                (x - 1, y, facing),
+                current,
+            ),
+            _ => {}
         }
         add_frontier(
             &mut frontier,
             &mut g_score,
             score + 1000,
-            x,
-            y,
-            facing.left(),
+            (x, y, facing.left()),
+            current,
         );
         add_frontier(
             &mut frontier,
             &mut g_score,
             score + 1000,
-            x,
-            y,
-            facing.right(),
+            (x, y, facing.right()),
+            current,
         );
     }
 
-    let mut frontier = BinaryHeap::new();
-    frontier.push(Reverse((0, start_x, start_y, Facing::East, vec![])));
-
-    while let Some(Reverse((score, x, y, facing, history))) = frontier.pop() {
-        if score > solution_a {
-            break;
-        }
-        if x == end_x && y == end_y {
-            good_spots.extend(history.into_iter().map(|(x, y, _)| (x, y)));
-            continue;
-        }
-        if g_score
-            .get(&(x, y, facing))
-            .is_some_and(|s| *s < score)
-        {
-            continue;
-        }
-        if history.contains(&(x, y, facing)) {
+    let mut good_spots = HashSet::new();
+    while let Some((x, y, facing)) = remaining.pop() {
+        good_spots.insert((x, y));
+        if x == start_x && y == start_y {
             continue;
         }
 
-        match facing {
-            Facing::North => {
-                if !grid[y - 1][x] {
-                    let mut history = history.clone();
-                    history.push((x, y, facing));
-                    frontier.push(Reverse((score + 1, x, y - 1, facing, history)));
-                }
-            }
-            Facing::East => {
-                if !grid[y][x + 1] {
-                    let mut history = history.clone();
-                    history.push((x, y, facing));
-                    frontier.push(Reverse((score + 1, x + 1, y, facing, history)));
-                }
-            }
-            Facing::South => {
-                if !grid[y + 1][x] {
-                    let mut history = history.clone();
-                    history.push((x, y, facing));
-                    frontier.push(Reverse((score + 1, x, y + 1, facing, history)));
-                }
-            }
-            Facing::West => {
-                if !grid[y][x - 1] {
-                    let mut history = history.clone();
-                    history.push((x, y, facing));
-                    frontier.push(Reverse((score + 1, x - 1, y, facing, history)));
-                }
-            }
-        }
-
-        frontier.push(Reverse((
-            score + 1000,
-            x,
-            y,
-            facing.left(),
-            history.clone(),
-        )));
-        frontier.push(Reverse((score + 1000, x, y, facing.right(), history)));
+        remaining.extend(&g_score[&(x, y, facing)].1);
     }
 
-    let solution_b = good_spots.len();
-    Ok((solution_a, solution_b))
+    Ok((solution_a, good_spots.len()))
 }
 
 fn add_frontier(
-    frontier: &mut BinaryHeap<Reverse<(usize, usize, usize, Facing)>>,
-    g_score: &mut HashMap<(usize, usize, Facing), usize>,
+    frontier: &mut BinaryHeap<Reverse<(usize, State)>>,
+    g_score: &mut HashMap<State, (usize, Vec<State>)>,
     score: usize,
-    x: usize,
-    y: usize,
-    facing: Facing,
+    new: State,
+    current: State,
 ) {
-    match g_score.entry((x, y, facing)) {
+    match g_score.entry(new) {
         Entry::Occupied(mut e) => {
-            let old = e.get_mut();
-            if *old > score {
-                *old = score;
+            let (old, predecessors) = e.get_mut();
+            match score.cmp(old) {
+                Ordering::Less => {
+                    *old = score;
+                    predecessors.clear();
+                    predecessors.push(current);
+                }
+                Ordering::Equal => {
+                    predecessors.push(current);
+                }
+                Ordering::Greater => {}
             }
         }
-        Entry::Vacant(mut e) => {
-            e.insert(score);
-            frontier.push(Reverse((score, x, y, facing)));
+        Entry::Vacant(e) => {
+            e.insert((score, vec![current]));
+            frontier.push(Reverse((score, new)));
         }
     }
 }
