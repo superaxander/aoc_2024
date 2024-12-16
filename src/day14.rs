@@ -64,9 +64,11 @@ pub fn main() -> Result<(usize, usize)> {
         }
         if robots
             .iter()
-            .map(|r| {
+            .enumerate()
+            .map(|(i, r)| {
                 robots
                     .iter()
+                    .skip(i + 1)
                     .filter(|r2| {
                         (r.py == r2.py) && (r.px.abs_diff(r2.px) == 1)
                             || (r.px == r2.px) && (r.py.abs_diff(r2.py) == 1)
