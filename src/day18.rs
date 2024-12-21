@@ -17,17 +17,17 @@ pub fn main() -> Result<(u32, String)> {
 
     let solution_a = calc_cost(&bytes.iter().take(1024).copied().collect()).unwrap();
 
-    let mut min = 1024;
-    let mut max = bytes.len() - 1;
-    while min <= max {
-        let mid = (min + max) / 2;
+    let mut low = 1024;
+    let mut high = bytes.len() - 1;
+    while low <= high {
+        let mid = (low + high) / 2;
         if calc_cost(&bytes.iter().take(mid).copied().collect()).is_none() {
-            max = mid - 1;
+            high = mid - 1;
         } else {
-            min = mid + 1;
+            low = mid + 1;
         }
     }
-    let solution_b = format!("{}, {}", bytes[min - 1].0, bytes[min - 1].1);
+    let solution_b = format!("{}, {}", bytes[low - 1].0, bytes[low - 1].1);
 
     Ok((solution_a, solution_b))
 }
