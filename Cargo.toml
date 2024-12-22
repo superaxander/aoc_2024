@@ -17,4 +17,5 @@ bit-vec = "0.8.0"
 itertools = "0.13.0"
 rayon = "1.10.0"
 z3 = "0.12.1"
+rustc-hash = "2.1.0"
 

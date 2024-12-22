@@ -1,21 +1,20 @@
 use crate::common;
 use anyhow::Result;
-use std::collections::{HashMap, HashSet};
+use rustc_hash::{FxHashMap, FxHashSet};
 
-pub fn main() -> Result<(usize, usize)> {
+pub fn main() -> Result<(u32, u32)> {
     let lines = common::read_lines("inputs/22.txt")?;
 
     let mut solution_a = 0;
 
-    let mut sequences = HashSet::new();
-    let mut mappings = Vec::new();
+    let mut sequence_value_mapping = FxHashMap::default();
     for line in lines {
         let line = line?;
         let line = line.trim();
 
-        let mut sequence_value_mapping = HashMap::new();
+        let mut sequences = FxHashSet::default();
 
-        let mut number: usize = line.parse()?;
+        let mut number: u32 = line.parse()?;
         let mut diffs = [0, 0, 0, 0];
         for i in 0..2000 {
             let old = number % 10;
@@ -26,28 +25,19 @@ pub fn main() -> Result<(usize, usize)> {
             let bananas = number % 10;
             diffs[i % 4] = bananas - old;
             if i > 3 {
-                let sequence = (
-                    diffs[i % 4],
-                    diffs[(i - 1) % 4],
-                    diffs[(i - 2) % 4],
-                    diffs[(i - 3) % 4],
-                );
-                sequence_value_mapping.entry(sequence).or_insert(bananas);
+                let sequence = ((diffs[i % 4] & 0xF) << 12)
+                    | ((diffs[(i - 1) % 4] & 0xF) << 8)
+                    | ((diffs[(i - 2) % 4] & 0xF) << 4)
+                    | (diffs[(i - 3) % 4] & 0xF);
+                if sequences.insert(sequence) {
+                    *sequence_value_mapping.entry(sequence).or_insert(0) += bananas;
+                }
             }
         }
-        sequences.extend(sequence_value_mapping.keys());
-        mappings.push(sequence_value_mapping);
         solution_a += number;
     }
 
-    let mut solution_b = 0;
-    for sequence in sequences {
-        let mut count = 0;
-        for mapping in &mappings {
-            count += mapping.get(&sequence).unwrap_or(&0);
-        }
-        solution_b = solution_b.max(count);
-    }
+    let solution_b = *sequence_value_mapping.values().max().unwrap();
 
     Ok((solution_a, solution_b))
 }
